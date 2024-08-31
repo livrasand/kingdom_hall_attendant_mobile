@@ -1,0 +1,44 @@
+name: Build React Native App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install Dependencies
+        run: npm install
+      - name: Build Android
+        run: |
+          npm run android
+          cd android
+          ./gradlew assembleRelease
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install Dependencies
+        run: npm install
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+      - name: Build iOS
+        run: xcodebuild -workspace ios/kingdom_hall_attendant_mobile.xcworkspace -scheme kingdom_hall_attendant_mobile -sdk iphoneos -configuration Release archive -archivePath $PWD/build/kingdom_hall_attendant_mobile.xcarchive
+      - name: Export .ipa
+        run: xcodebuild -exportArchive -archivePath $PWD/build/kingdom_hall_attendant_mobile.xcarchive -exportOptionsPlist ios/exportOptions.plist -exportPath $PWD/build
