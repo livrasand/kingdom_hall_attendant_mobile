@@ -1,0 +1,11 @@
+{
+  "name": "KHA Mobile",
+  "slug": "kha-mobile",
+  "displayName": "KHA Mobile",
+  "icon": "./assets/images/313010479-cfab1393-8ae1-4b3f-9895-7022272f1262.jpeg",
+  "splash": {
+    "image": "./assets/images/313010479-cfab1393-8ae1-4b3f-9895-7022272f1262.jpeg",
+    "resizeMode": "contain", 
+    "backgroundColor": "#ffffff" 
+  }
+}
