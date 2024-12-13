@@ -1,4 +1,4 @@
-name: Build React Native App
+name: Build React Native App for iOS and Android
 
 on:
   push:
@@ -9,47 +9,6 @@ on:
       - main
 
 jobs:
-  # 🟢 Job para compilar la app Android
-  build-android:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v2
-
-      - name: Grant execute permission to gradlew
-        run: chmod +x android/gradlew
-
-      - name: Build Android APK
-        run: |
-          cd android
-          ./gradlew assembleRelease
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-release.apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-
-  # 🍏 Job para compilar la app iOS
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
@@ -69,13 +28,13 @@ jobs:
       - name: Install CocoaPods
         run: |
           cd ios
-          pod install
+          pod install --repo-update
 
       - name: Build iOS App
         run: |
           cd ios
-          xcodebuild -workspace YourApp.xcworkspace \
-                     -scheme YourApp \
+          xcodebuild -workspace kingdom_hall_attendant_mobile.xcworkspace \
+                     -scheme kingdom_hall_attendant_mobile \
                      -configuration Release \
                      -derivedDataPath build
 
@@ -84,3 +43,41 @@ jobs:
         with:
           name: ios-build
           path: ios/build/Build/Products/Release-iphoneos/
+
+  build-android:
+    name: Build Android App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Set Up Java JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant Execute Permission for Gradlew
+        run: |
+          cd android
+          chmod +x ./gradlew
+
+      - name: Build Android App
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      - name: Upload Android Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-build
+          path: android/app/build/outputs/apk/release/app-release.apk
