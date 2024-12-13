@@ -1,10 +1,7 @@
-name: Build React Native App for iOS and Android
+name: Build and Release React Native App for iOS and Android
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
@@ -81,3 +78,58 @@ jobs:
         with:
           name: android-build
           path: android/app/build/outputs/apk/release/app-release.apk
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-ios, build-android]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Download iOS Build
+        uses: actions/download-artifact@v3
+        with:
+          name: ios-build
+          path: ios-build
+
+      - name: Download Android Build
+        uses: actions/download-artifact@v3
+        with:
+          name: android-build
+          path: android-build
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          release_name: Release v1.0.${{ github.run_number }}
+          body: |
+            🚀 New release for iOS and Android!
+            - iOS build: `.ipa` file for App Store
+            - Android build: `.apk` file for Google Play
+          draft: false
+          prerelease: false
+
+      - name: Upload iOS Build to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ios-build/kingdom_hall_attendant_mobile.app
+          asset_name: kingdom_hall_attendant_mobile.ipa
+          asset_content_type: application/octet-stream
+
+      - name: Upload Android Build to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: android-build/app-release.apk
+          asset_name: app-release.apk
+          asset_content_type: application/vnd.android.package-archive
