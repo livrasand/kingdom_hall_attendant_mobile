@@ -9,6 +9,7 @@ on:
       - main
 
 jobs:
+  # 🟢 Job para compilar la app Android
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
@@ -34,6 +35,9 @@ jobs:
       - name: Install Android SDK
         uses: android-actions/setup-android@v2
 
+      - name: Grant execute permission to gradlew
+        run: chmod +x android/gradlew
+
       - name: Build Android APK
         run: |
           cd android
@@ -45,6 +49,7 @@ jobs:
           name: app-release.apk
           path: android/app/build/outputs/apk/release/app-release.apk
 
+  # 🍏 Job para compilar la app iOS
   build-ios:
     name: Build iOS App
     runs-on: macos-latest
